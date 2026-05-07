@@ -44,14 +44,17 @@
       overflow: hidden;
     }
 
+    .hero {
+      background-image: url('images/hero.jpg');
+      background-size: cover;
+      background-position: center 30%;
+    }
+
     .hero::before {
       content: '';
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% 30%, rgba(201,147,58,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(181,67,42,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 50% at 80% 70%, rgba(58,35,21,0.06) 0%, transparent 60%);
+      background: rgba(247,242,235,0.82);
     }
 
     /* Decorative ruled lines */
