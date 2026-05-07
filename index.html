@@ -576,6 +576,59 @@
       .nav-links { display: none; }
       .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
     }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      max-width: 1280px; margin: 0 auto 20px; padding: 0 24px;
+      display: flex; justify-content: center;
+    }
+    .recipe-search {
+      width: 100%; max-width: 360px;
+      padding: 10px 16px 10px 38px;
+      font-family: 'Karla', sans-serif; font-size: 0.85rem; letter-spacing: 0.03em;
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A5C45' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 13px center;
+      border: 1px solid var(--border); border-radius: 2px; color: var(--brown);
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .recipe-search:focus { border-color: var(--rust); box-shadow: 0 0 0 3px rgba(181,67,42,0.1); }
+    .recipe-search::placeholder { color: var(--text-muted); }
+    .search-empty {
+      display: none; text-align: center; padding: 64px 24px;
+      color: var(--text-muted); font-style: italic;
+      font-family: 'Playfair Display', serif; font-size: 1rem;
+    }
+
+    /* ── ENTRANCE ANIMATIONS ── */
+    .recipe-card {
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.45s ease, transform 0.4s ease, box-shadow 0.25s ease;
+    }
+    .recipe-card.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── LIGHTBOX COUNTER ── */
+    .lightbox-counter {
+      order: 4;
+      font-family: 'Karla', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28); margin-top: 8px;
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      body > *:not(.lightbox) { display: none !important; }
+      .lightbox {
+        position: static !important; display: block !important;
+        background: white !important; padding: 0 !important;
+      }
+      .lightbox-inner { max-width: 100% !important; }
+      .lightbox-close, .lightbox-nav, .lightbox-title, .lightbox-counter { display: none !important; }
+      .lightbox-img-wrap {
+        transform: none !important; box-shadow: none !important;
+        background: white !important; padding: 0 !important;
+        max-height: none !important; overflow: visible !important;
+      }
+      .lightbox-img-wrap img { width: 100% !important; }
+    }
   </style>
 </head>
 <body>
@@ -613,6 +666,9 @@
     <h2 class="section-title">All Recipes</h2>
   </div>
 
+  <div class="search-wrap">
+    <input type="text" id="recipeSearch" placeholder="Search recipes…" class="recipe-search" autocomplete="off">
+  </div>
   <div class="filter-bar">
     <button class="filter-btn active" data-cat="all">All</button>
     <button class="filter-btn" data-cat="Main Dishes">Main Dishes</button>
@@ -624,6 +680,7 @@
   </div>
 
   <div class="recipe-grid" id="recipeGrid"></div>
+  <p class="search-empty" id="searchEmpty"></p>
 </section>
 
 <!-- ABOUT -->
@@ -663,6 +720,7 @@
       <button id="lightboxPrev">← Previous</button>
       <button id="lightboxNext">Next →</button>
     </div>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
   </div>
 </div>
 
@@ -725,9 +783,14 @@ let currentIndex = 0;
 let visibleRecipes = [...recipes];
 
 function getImgSrc(r) {
-  // Try local path first; fall back to Squarespace CDN
   return r.imgUrl;
 }
+
+const cardObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); cardObserver.unobserve(e.target); }
+  });
+}, { threshold: 0.08 });
 
 function buildCards(list) {
   grid.innerHTML = '';
@@ -746,17 +809,37 @@ function buildCards(list) {
       </div>`;
     card.addEventListener('click', () => openLightbox(i, list));
     grid.appendChild(card);
+    cardObserver.observe(card);
   });
 }
 
-// Filter
+// Filter + Search
+let activeCategory = 'all';
+const searchInput = document.getElementById('recipeSearch');
+const searchEmpty = document.getElementById('searchEmpty');
+
+function filterAndBuild() {
+  const q = searchInput.value.trim().toLowerCase();
+  let filtered = activeCategory === 'all' ? [...recipes] : recipes.filter(r => r.category === activeCategory);
+  if (q) filtered = filtered.filter(r => r.title.toLowerCase().includes(q));
+  visibleRecipes = filtered;
+  buildCards(filtered);
+  if (filtered.length === 0) {
+    searchEmpty.textContent = `No recipes found for "${searchInput.value.trim()}"`;
+    searchEmpty.style.display = 'block';
+  } else {
+    searchEmpty.style.display = 'none';
+  }
+}
+
+searchInput.addEventListener('input', filterAndBuild);
+
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const cat = btn.dataset.cat;
-    visibleRecipes = cat === 'all' ? [...recipes] : recipes.filter(r => r.category === cat);
-    buildCards(visibleRecipes);
+    activeCategory = btn.dataset.cat;
+    filterAndBuild();
   });
 });
 
@@ -778,6 +861,8 @@ function updateLightbox() {
   lbImg.src = getImgSrc(r);
   lbImg.alt = r.title;
   lbTitle.textContent = r.title;
+  document.getElementById('lightboxCounter').textContent = (currentIndex + 1) + ' / ' + visibleRecipes.length;
+  resetZoom();
 }
 
 document.getElementById('lightboxClose').addEventListener('click', () => {
@@ -808,6 +893,69 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + visibleRecipes.length) % visibleRecipes.length; updateLightbox(); }
   if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % visibleRecipes.length; updateLightbox(); }
 });
+
+// Swipe navigation
+let swipeStartX = 0, swipeStartY = 0;
+lightbox.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) { swipeStartX = e.touches[0].clientX; swipeStartY = e.touches[0].clientY; }
+}, { passive: true });
+lightbox.addEventListener('touchend', e => {
+  if (currentScale > 1 || e.changedTouches.length !== 1) return;
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  if (Math.abs(dx) > 52 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+    currentIndex = dx < 0
+      ? (currentIndex + 1) % visibleRecipes.length
+      : (currentIndex - 1 + visibleRecipes.length) % visibleRecipes.length;
+    updateLightbox();
+  }
+}, { passive: true });
+
+// Pinch-to-zoom + double-tap on recipe card
+let currentScale = 1, pinchStartDist = 0, pinchStartScale = 1, lastTap = 0;
+const imgWrap = document.querySelector('.lightbox-img-wrap');
+
+function resetZoom() {
+  currentScale = 1;
+  lbImg.style.transform = '';
+  imgWrap.style.overflow = '';
+  imgWrap.style.cursor = 'zoom-in';
+}
+
+imgWrap.addEventListener('touchstart', e => {
+  if (e.touches.length === 2) {
+    pinchStartDist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
+    pinchStartScale = currentScale;
+    e.preventDefault();
+  }
+}, { passive: false });
+
+imgWrap.addEventListener('touchmove', e => {
+  if (e.touches.length === 2) {
+    const dist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
+    currentScale = Math.max(1, Math.min(4, pinchStartScale * (dist / pinchStartDist)));
+    lbImg.style.transform = `scale(${currentScale})`;
+    lbImg.style.transformOrigin = 'top center';
+    imgWrap.style.overflow = 'auto';
+    imgWrap.style.cursor = 'grab';
+    e.preventDefault();
+  }
+}, { passive: false });
+
+lbImg.addEventListener('touchend', e => {
+  const now = Date.now();
+  if (now - lastTap < 280 && e.changedTouches.length === 1) {
+    currentScale = currentScale === 1 ? 2.5 : 1;
+    lbImg.style.transform = currentScale === 1 ? '' : `scale(${currentScale})`;
+    lbImg.style.transformOrigin = 'top center';
+    imgWrap.style.overflow = currentScale > 1 ? 'auto' : '';
+    imgWrap.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
+    e.preventDefault();
+  }
+  lastTap = now;
+}, { passive: false });
+
+imgWrap.style.cursor = 'zoom-in';
 
 // Init
 buildCards(recipes);

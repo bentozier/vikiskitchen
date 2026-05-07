@@ -509,6 +509,21 @@ document.getElementById('lbClose').addEventListener('click', closeLb);
 lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
 document.getElementById('lbPrev').addEventListener('click', () => { currentIdx = (currentIdx - 1 + photos.length) % photos.length; updateLb(); });
 document.getElementById('lbNext').addEventListener('click', () => { currentIdx = (currentIdx + 1) % photos.length; updateLb(); });
+
+// Swipe navigation
+let swipeStartX = 0, swipeStartY = 0;
+lb.addEventListener('touchstart', e => {
+  if (e.touches.length === 1) { swipeStartX = e.touches[0].clientX; swipeStartY = e.touches[0].clientY; }
+}, { passive: true });
+lb.addEventListener('touchend', e => {
+  if (e.changedTouches.length !== 1) return;
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  if (Math.abs(dx) > 52 && Math.abs(dx) > Math.abs(dy) * 1.4) {
+    currentIdx = dx < 0 ? (currentIdx + 1) % photos.length : (currentIdx - 1 + photos.length) % photos.length;
+    updateLb();
+  }
+}, { passive: true });
 document.addEventListener('keydown', e => {
   if (!lb.classList.contains('open')) return;
   if (e.key === 'Escape') closeLb();
