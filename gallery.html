@@ -157,8 +157,44 @@
     }
     .footer-text { font-size: 0.75rem; }
 
+    /* HAMBURGER BUTTON */
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 2px;
+      flex-shrink: 0;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #F7F2EB;
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.2s ease;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
     @media (max-width: 600px) {
-      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .nav-inner { flex-wrap: wrap; }
+      .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid rgba(255,255,255,0.08);
+        padding: 4px 0 12px;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links li { width: 100%; }
+      .nav-links a { display: block; padding: 11px 24px; font-size: 0.82rem; }
       .masonry { grid-template-columns: repeat(2, 1fr); gap: 10px; }
     }
   </style>
@@ -168,7 +204,10 @@
 <nav class="site-nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo"><em>Viki's</em> <span>Kitchen</span></a>
-    <ul class="nav-links">
+    <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
       <li><a href="index.html#recipes">Recipes</a></li>
       <li><a href="gallery.html" class="active">Photos</a></li>
       <li><a href="index.html#about">About Viki</a></li>
@@ -535,6 +574,21 @@ function closeLb() {
   lb.classList.remove('open');
   document.body.style.overflow = '';
 }
+
+const navToggle = document.getElementById('navToggle');
+const navLinks = document.getElementById('navLinks');
+navToggle.addEventListener('click', () => {
+  const open = navLinks.classList.toggle('open');
+  navToggle.classList.toggle('open', open);
+  navToggle.setAttribute('aria-expanded', open);
+});
+navLinks.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.setAttribute('aria-expanded', 'false');
+  });
+});
 </script>
 </body>
 </html>
