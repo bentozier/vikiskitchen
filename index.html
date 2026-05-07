@@ -613,6 +613,14 @@
       color: rgba(255,255,255,0.28); margin-top: 8px;
     }
 
+    /* ── MULTI-PAGE RECIPE CARDS ── */
+    .lb-img-content { transform-origin: top center; }
+    .extra-page {
+      border-top: 1px solid rgba(58,35,21,0.12);
+      margin-top: 14px; padding-top: 14px;
+    }
+    .extra-page img { width: 100%; display: block; }
+
     /* ── PRINT ── */
     @media print {
       body > *:not(.lightbox) { display: none !important; }
@@ -714,7 +722,9 @@
     <button class="lightbox-close" id="lightboxClose" aria-label="Close">✕</button>
     <div class="lightbox-title" id="lightboxTitle"></div>
     <div class="lightbox-img-wrap">
-      <img id="lightboxImg" src="" alt="">
+      <div class="lb-img-content" id="lbImgContent">
+        <img id="lightboxImg" src="" alt="">
+      </div>
     </div>
     <div class="lightbox-nav">
       <button id="lightboxPrev">← Previous</button>
@@ -728,7 +738,7 @@
 const recipes = [
   { title: "Korean Noodle Salad", img: "images/korean-noodle-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646084464291-LNV4SP0FMCET0B975LEO/Korean+Noodle+Salad.png?format=original", category: "Salads" },
   { title: "Orzo Salad with Corn, Green Beans, and Tomatoes", img: "images/orzo-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1645745874463-OI4UJKXB8YQEEBKG7UCO/Orzo+Salad+with+Corn%2C+Green+Beans%2C+_+Tomatoes.png?format=original", category: "Salads" },
-  { title: "Gilroy Garlic Bread", img: "images/gilroy-garlic-bread.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089396253-S5UTZO4NW93NP4199JQ9/Gilroy+Garlic+Bread+Part+1.png?format=original", category: "Appetizers & Bread" },
+  { title: "Gilroy Garlic Bread", img: "images/gilroy-garlic-bread.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089396253-S5UTZO4NW93NP4199JQ9/Gilroy+Garlic+Bread+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089396253-S5UTZO4NW93NP4199JQ9/Gilroy+Garlic+Bread+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089734297-IF38ZYSHO4VDEJYNDL6W/Gilroy+Garlic+Bread+Part+2.png?format=original"], category: "Appetizers & Bread" },
   { title: "Hot Asparagus Canapes", img: "images/hot-asparagus-canapes.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089856521-ENY2F4P3DWLIICH6PWAD/Hot+Asparagus+Canapes.png?format=original", category: "Appetizers & Bread" },
   { title: "Mom's Chinese Chicken Salad", img: "images/moms-chinese-chicken-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089967660-QT5L4E9FJT83I32AU305/Mom%27s+Chinese+Chicken+Salad.png?format=original", category: "Salads" },
   { title: "Parmesan Bubble Loaf", img: "images/parmesan-bubble-loaf.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090068441-AX59NO0G2QKK9I4AFZTD/Parmesan+Bubble+Loaf.png?format=original", category: "Appetizers & Bread" },
@@ -737,13 +747,13 @@ const recipes = [
   { title: "Crimson Apple Glogg", img: "images/crimson-apple-glogg.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646545746625-JY3X0A8VQ4OKOCU5SJ34/Crimson+Apple+Glogg.png?format=original", category: "Drinks & Seasonings" },
   { title: "Sub Vet Chicken Salad", img: "images/sub-vet-chicken-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1645746278054-VHDLQMNBD1ACC0JU8533/Sub+Vet+Chicken+Salad.png?format=original", category: "Salads" },
   { title: "String Bean Casserole", img: "images/string-bean-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090818044-5WK98QABXZ755UOHYQR3/String+Bean+Casserole.png?format=original", category: "Main Dishes" },
-  { title: "General Tso's Chicken", img: "images/general-tsos-chicken.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090939797-5LDKOY71I7TNUQ2IJKO5/General+Tso_s+Chicken+%28pt+1%29.png?format=original", category: "Main Dishes" },
+  { title: "General Tso's Chicken", img: "images/general-tsos-chicken.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090939797-5LDKOY71I7TNUQ2IJKO5/General+Tso_s+Chicken+%28pt+1%29.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090939797-5LDKOY71I7TNUQ2IJKO5/General+Tso_s+Chicken+%28pt+1%29.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090988398-I62SIRDS1HZS3K7PAYVI/General+Tso_s+Chicken+%28pt+2%29.png?format=original"], category: "Main Dishes" },
   { title: "Impossible Breakfast Pie", img: "images/impossible-breakfast-pie.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091091874-FWCL8ASXL5E3CKEUA907/Impossible+Breakfast+Pie.png?format=original", category: "Main Dishes" },
   { title: "Homecoming Soup", img: "images/homecoming-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091186767-98A61OLSA7XC23YQ6KW1/Homecoming+Soup.png?format=original", category: "Soups & Stews" },
   { title: "Hashbrown Casserole", img: "images/hashbrown-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091273986-QZ0QF8RIC8KYPXRINILO/Hash+Brown+Casserole.png?format=original", category: "Main Dishes" },
   { title: "French Onion Meatloaf", img: "images/french-onion-meatloaf.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091373684-F5EVKU5O7EHFYEHK563T/French+Onion+Meat+Loaf.png?format=original", category: "Main Dishes" },
   { title: "Viva La Chicken Casserole", img: "images/viva-la-chicken-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091446073-TX2F0XMHL6YQURGGI0F1/Viva+la+Chicken+Casserole.png?format=original", category: "Main Dishes" },
-  { title: "Tuna Tetrazzini", img: "images/tuna-tetrazzini.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091552888-4P87B9OBC5F7NKI8SP4W/Tuna+Tetrazzini+%28pt+1%29.png?format=original", category: "Main Dishes" },
+  { title: "Tuna Tetrazzini", img: "images/tuna-tetrazzini.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091552888-4P87B9OBC5F7NKI8SP4W/Tuna+Tetrazzini+%28pt+1%29.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091552888-4P87B9OBC5F7NKI8SP4W/Tuna+Tetrazzini+%28pt+1%29.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091584368-PCLYUMYNHT1NUJT6A99W/Tuna+Tetrazzini+%28pt+2%29.png?format=original"], category: "Main Dishes" },
   { title: "Macaroni & Cheese", img: "images/macaroni-cheese.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091696166-S7GB7XMO941UHGLLBD6D/Macaroni+_+Cheese.png?format=original", category: "Main Dishes" },
   { title: "Chicken Enchilada Casserole", img: "images/chicken-enchilada-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091820553-HCUUIE2WZ0KWPVQ76T9I/Chicken+Enchilada+Casserole.png?format=original", category: "Main Dishes" },
   { title: "Beef & Corn Casserole", img: "images/beef-corn-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091885874-G76PB3DU853M2BY30BZP/Beef+and+Corn+Casserole.png?format=original", category: "Main Dishes" },
@@ -755,26 +765,26 @@ const recipes = [
   { title: "Tortellini Casserole", img: "images/tortellini-casserole.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092513053-54U1546TF1CKYVQN589X/Tortellini.jpg?format=original", category: "Main Dishes" },
   { title: "Chili Rellenos Casserole", img: "images/chili-rellenos-casserole.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092592840-84G2EC5YV4Z8QY5FRFRH/Chili+Rellenos+Cassarole.jpg?format=original", category: "Soups & Stews" },
   { title: "Slow Cooker Vegetable Soup", img: "images/slow-cooker-vegetable-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092704997-IQUIY7AU2R5IBTO8OR5O/Slow+Cooker+Vegetable+Soup.png?format=original", category: "Soups & Stews" },
-  { title: "Chicken Soup", img: "images/chicken-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092778840-O7KXCLG7DCXHAPSLAFPG/Chicken+Soup+Part+1.png?format=original", category: "Soups & Stews" },
-  { title: "Quick & Easy Chicken Cacciatore", img: "images/chicken-cacciatore.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092923802-BX337LM2RTJ393N7RNZJ/Quick+%26+Easy+Chicken+Cacciatore+Part+1.png?format=original", category: "Main Dishes" },
-  { title: "Peloponnesian Pot Roast", img: "images/peloponnesian-pot-roast.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093056449-NDEGHSLITW7W13GARY91/Peloponesian+Pot+Roast+Part+1.png?format=original", category: "Main Dishes" },
-  { title: "Minestrone", img: "images/minestrone.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093219669-32AYLE1215TGHZNSGCAT/Minestrone+Part+1.png?format=original", category: "Soups & Stews" },
-  { title: "Quick & Easy Chicken Casserole", img: "images/chicken-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093299141-GGBIQ9QGWBH1SCVFAPLN/Quick+%26+Easy+Chicken+Cassarole+Part+1.png?format=original", category: "Main Dishes" },
+  { title: "Chicken Soup", img: "images/chicken-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092778840-O7KXCLG7DCXHAPSLAFPG/Chicken+Soup+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092778840-O7KXCLG7DCXHAPSLAFPG/Chicken+Soup+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092806075-4JDMG7OM0N7SAJOWO46E/Chicken+Soup+Part+2.png?format=original"], category: "Soups & Stews" },
+  { title: "Quick & Easy Chicken Cacciatore", img: "images/chicken-cacciatore.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092923802-BX337LM2RTJ393N7RNZJ/Quick+%26+Easy+Chicken+Cacciatore+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092923802-BX337LM2RTJ393N7RNZJ/Quick+%26+Easy+Chicken+Cacciatore+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092931720-2F1NGM3000N0AYV6I9DV/Quick+%26+Easy+Chicken+Cacciatore+Part+2.png?format=original"], category: "Main Dishes" },
+  { title: "Peloponnesian Pot Roast", img: "images/peloponnesian-pot-roast.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093056449-NDEGHSLITW7W13GARY91/Peloponesian+Pot+Roast+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093056449-NDEGHSLITW7W13GARY91/Peloponesian+Pot+Roast+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093069301-L13U1LLVYOPFU6XEBBN9/Peloponesian+Pot+Roast+Part+2.png?format=original"], category: "Main Dishes" },
+  { title: "Minestrone", img: "images/minestrone.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093219669-32AYLE1215TGHZNSGCAT/Minestrone+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093219669-32AYLE1215TGHZNSGCAT/Minestrone+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093225127-SC9BS4SDIWOG520UTNTJ/Minestrone+Part+2.png?format=original"], category: "Soups & Stews" },
+  { title: "Quick & Easy Chicken Casserole", img: "images/chicken-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093299141-GGBIQ9QGWBH1SCVFAPLN/Quick+%26+Easy+Chicken+Cassarole+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093299141-GGBIQ9QGWBH1SCVFAPLN/Quick+%26+Easy+Chicken+Cassarole+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093310879-2U5Z18QCG8SC1QJ69UJR/Quick+%26+Easy+Chicken+Cassarole+Part+2.png?format=original"], category: "Main Dishes" },
   { title: "Chicken & Dumplings", img: "images/chicken-dumplings.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646545903752-JREBKY21JPRFLK1FKEO6/Chicken+%26+Dumplings.png?format=original", category: "Main Dishes" },
   { title: "Shepherds Pie", img: "images/shepherds-pie.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546031884-4GVE70HNASXDKOUZNE5Q/Shepherd%27s+Pie.png?format=original", category: "Main Dishes" },
   { title: "Taco/Shake & Bake Seasonings", img: "images/taco-seasonings.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546173062-X9M46999WCLIZ5YOUZ58/Taco-Seasoning.png?format=original", category: "Drinks & Seasonings" },
-  { title: "Banana Split Dessert", img: "images/banana-split-dessert.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093544413-9OU0106Y7OMDYSVBOCB8/Banana+Split+Dessert++%28pt+1%29.png?format=original", category: "Desserts & Baking" },
+  { title: "Banana Split Dessert", img: "images/banana-split-dessert.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093544413-9OU0106Y7OMDYSVBOCB8/Banana+Split+Dessert++%28pt+1%29.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093544413-9OU0106Y7OMDYSVBOCB8/Banana+Split+Dessert++%28pt+1%29.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093561010-PG0FNQTHQVIRBOQPP8CO/Banana+Split+Dessert+%28pt+2%29.png?format=original"], category: "Desserts & Baking" },
   { title: "Lemon Poppyseed Scones", img: "images/lemon-poppyseed-scones.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093805665-8ITF4JXYCMU8M46P9B23/Lemon+Poppyseed+Scones.png?format=original", category: "Desserts & Baking" },
   { title: "Apple Dump Cake", img: "images/apple-dump-cake.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093685508-1QB733XZ84CGD5HRADCW/Apple+Dump+Cake.png?format=original", category: "Desserts & Baking" },
   { title: "Pumpkin Spice Granola", img: "images/pumpkin-spice-granola.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093930610-E18138O5PYZB2EVTNTQP/Pumpkin+Spice+Granola.png?format=original", category: "Desserts & Baking" },
   { title: "Blonde Brownies", img: "images/blonde-brownies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093868989-D8TVDUY1QWLVYB5A6LZT/Blonde+Brownies.png?format=original", category: "Desserts & Baking" },
   { title: "Lemon Delight", img: "images/lemon-delight.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094012079-F4A6V338ZHI1QN5EQ9P5/Lemon+Delight.png?format=original", category: "Desserts & Baking" },
   { title: "Arabian Night Cookies", img: "images/arabian-night-cookies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646099277287-RK6LAHU7GDRNM62T3RFI/Arabian+Nights+Cookies.png?format=original", category: "Desserts & Baking" },
-  { title: "\u201cThe\u201d Brownies", img: "images/the-brownies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094163130-0C3124WNF3ZQ71QSHTIZ/%E2%80%9CThe%E2%80%9D+Brownies+Part+1.png?format=original", category: "Desserts & Baking" },
+  { title: "\u201cThe\u201d Brownies", img: "images/the-brownies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094163130-0C3124WNF3ZQ71QSHTIZ/%E2%80%9CThe%E2%80%9D+Brownies+Part+1.png?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094163130-0C3124WNF3ZQ71QSHTIZ/%E2%80%9CThe%E2%80%9D+Brownies+Part+1.png?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094186093-OXDC2TF7PPONGKUNH975/%E2%80%9CThe%E2%80%9D+Brownies+Part+2.png?format=original"], category: "Desserts & Baking" },
   { title: "Great Scots", img: "images/great-scots.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546312671-3K4E91V2FWG0QFRWG4WW/Great+Scots.png?format=original", category: "Desserts & Baking" },
   { title: "Spicy Candied Walnuts", img: "images/spicy-candied-walnuts.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546375351-VUEKX1KM5FHQ3V5VI0QR/Spicy+Candied+Walnuts.png?format=original", category: "Desserts & Baking" },
-  { title: "Rocky Road", img: "images/rocky-road.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646675908938-SJXA79HSZI310VAC8HGD/Rocky+Road+Part+1.jpg?format=original", category: "Desserts & Baking" },
-  { title: "Almond Cake with Fresh Berries", img: "images/almond-cake-fresh-berries.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646676045385-7P83GVQTHAZM0P4XVFBB/Almond+Cake+with+Fresh+Berries+Part+1.jpg?format=original", category: "Desserts & Baking" }
+  { title: "Rocky Road", img: "images/rocky-road.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646675908938-SJXA79HSZI310VAC8HGD/Rocky+Road+Part+1.jpg?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646675908938-SJXA79HSZI310VAC8HGD/Rocky+Road+Part+1.jpg?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646675931192-7GK4K64KBRO09SXY3976/Rocky+Road+Part+2.jpg?format=original"], category: "Desserts & Baking" },
+  { title: "Almond Cake with Fresh Berries", img: "images/almond-cake-fresh-berries.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646676045385-7P83GVQTHAZM0P4XVFBB/Almond+Cake+with+Fresh+Berries+Part+1.jpg?format=original", imgUrls: ["https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646676045385-7P83GVQTHAZM0P4XVFBB/Almond+Cake+with+Fresh+Berries+Part+1.jpg?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646676066354-BSNL4SLRPDFACTMHTL9B/Almond+Cake+with+Fresh+Berries+Part+2.jpg?format=original","https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646676098338-VR2PBBQXAZR5WHWHVZ1X/Almond+Cake+with+Fresh+Berries+Part+3.jpg?format=original"], category: "Desserts & Baking" }
 ];
 
 // Build recipe cards
@@ -783,7 +793,7 @@ let currentIndex = 0;
 let visibleRecipes = [...recipes];
 
 function getImgSrc(r) {
-  return r.imgUrl;
+  return r.imgUrls ? r.imgUrls[0] : r.imgUrl;
 }
 
 const cardObserver = new IntersectionObserver((entries) => {
@@ -847,6 +857,7 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 const lightbox = document.getElementById('lightbox');
 const lbImg = document.getElementById('lightboxImg');
 const lbTitle = document.getElementById('lightboxTitle');
+const imgContent = document.getElementById('lbImgContent');
 
 function openLightbox(idx, list) {
   currentIndex = idx;
@@ -858,8 +869,24 @@ function openLightbox(idx, list) {
 
 function updateLightbox() {
   const r = visibleRecipes[currentIndex];
-  lbImg.src = getImgSrc(r);
+  const urls = r.imgUrls || [r.imgUrl];
+
+  // Set primary image
+  lbImg.src = urls[0];
   lbImg.alt = r.title;
+
+  // Remove previous extra pages, then append new ones
+  imgContent.querySelectorAll('.extra-page').forEach(el => el.remove());
+  urls.slice(1).forEach(url => {
+    const div = document.createElement('div');
+    div.className = 'extra-page';
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = r.title;
+    div.appendChild(img);
+    imgContent.appendChild(div);
+  });
+
   lbTitle.textContent = r.title;
   document.getElementById('lightboxCounter').textContent = (currentIndex + 1) + ' / ' + visibleRecipes.length;
   resetZoom();
@@ -917,8 +944,7 @@ const imgWrap = document.querySelector('.lightbox-img-wrap');
 
 function resetZoom() {
   currentScale = 1;
-  lbImg.style.transform = '';
-  imgWrap.style.overflow = '';
+  imgContent.style.transform = '';
   imgWrap.style.cursor = 'zoom-in';
 }
 
@@ -934,21 +960,20 @@ imgWrap.addEventListener('touchmove', e => {
   if (e.touches.length === 2) {
     const dist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
     currentScale = Math.max(1, Math.min(4, pinchStartScale * (dist / pinchStartDist)));
-    lbImg.style.transform = `scale(${currentScale})`;
-    lbImg.style.transformOrigin = 'top center';
-    imgWrap.style.overflow = 'auto';
+    imgContent.style.transform = `scale(${currentScale})`;
+    imgContent.style.transformOrigin = 'top center';
     imgWrap.style.cursor = 'grab';
     e.preventDefault();
   }
 }, { passive: false });
 
-lbImg.addEventListener('touchend', e => {
+imgWrap.addEventListener('touchend', e => {
+  if (e.touches.length > 0) return;
   const now = Date.now();
   if (now - lastTap < 280 && e.changedTouches.length === 1) {
     currentScale = currentScale === 1 ? 2.5 : 1;
-    lbImg.style.transform = currentScale === 1 ? '' : `scale(${currentScale})`;
-    lbImg.style.transformOrigin = 'top center';
-    imgWrap.style.overflow = currentScale > 1 ? 'auto' : '';
+    imgContent.style.transform = currentScale === 1 ? '' : `scale(${currentScale})`;
+    imgContent.style.transformOrigin = 'top center';
     imgWrap.style.cursor = currentScale > 1 ? 'grab' : 'zoom-in';
     e.preventDefault();
   }
