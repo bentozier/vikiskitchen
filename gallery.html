@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photos — Viki's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #F7F2EB;
+      --cream-dark: #EDE5D8;
+      --rust: #B5432A;
+      --brown: #3A2315;
+      --brown-mid: #6B3F25;
+      --gold: #C9933A;
+      --gold-light: #E8B862;
+      --text-muted: #7A5C45;
+      --border: #DDD3C4;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--cream); color: var(--brown); font-family: 'Karla', sans-serif; overflow-x: hidden; }
+
+    /* NAV */
+    .site-nav {
+      background: var(--brown);
+      border-bottom: 2px solid var(--rust);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between; height: 56px;
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif; font-size: 1.25rem;
+      color: #F7F2EB; font-style: italic; text-decoration: none;
+    }
+    .nav-logo span { color: var(--gold-light); }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #EDE5D8; text-decoration: none; transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--gold-light); }
+
+    /* PAGE HEADER */
+    .page-header {
+      text-align: center; padding: 64px 24px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+    .page-label {
+      font-size: 0.72rem; letter-spacing: 0.4em; text-transform: uppercase;
+      color: var(--rust); margin-bottom: 12px;
+    }
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem); color: var(--brown); margin-bottom: 12px;
+    }
+    .page-count {
+      font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em;
+    }
+
+    /* MASONRY GRID */
+    .gallery-wrap {
+      max-width: 1400px; margin: 0 auto; padding: 48px 20px 80px;
+    }
+    .masonry {
+      columns: 4 280px;
+      column-gap: 14px;
+    }
+    .masonry-item {
+      break-inside: avoid;
+      margin-bottom: 14px;
+      overflow: hidden;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      background: var(--cream-dark);
+    }
+    .masonry-item img {
+      width: 100%; display: block;
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+    .masonry-item:hover img {
+      transform: scale(1.04);
+      filter: brightness(0.88);
+    }
+    .masonry-item .hover-icon {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .masonry-item:hover .hover-icon { opacity: 1; }
+    .hover-icon span {
+      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: white; border: 1px solid rgba(255,255,255,0.6);
+      padding: 7px 16px; border-radius: 2px;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(2px);
+    }
+
+    /* LIGHTBOX */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 999;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(15,7,3,0.95); padding: 16px;
+      backdrop-filter: blur(6px);
+    }
+    .lightbox.open { display: flex; }
+    .lb-inner {
+      position: relative; max-width: 1100px; width: 100%;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .lb-img-wrap {
+      max-height: 88vh; overflow: hidden; display: flex;
+      align-items: center; justify-content: center;
+    }
+    .lb-img-wrap img {
+      max-height: 88vh; max-width: 100%; object-fit: contain;
+      border: 2px solid rgba(201,147,58,0.3); border-radius: 2px;
+    }
+    .lb-close {
+      position: absolute; top: -14px; right: -14px;
+      width: 36px; height: 36px; background: var(--rust); color: white;
+      border: none; border-radius: 50%; font-size: 1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .lb-close:hover { background: #D4553A; }
+    .lb-nav {
+      position: absolute; top: 50%; width: calc(100% + 80px);
+      left: -40px; transform: translateY(-50%);
+      display: flex; justify-content: space-between; pointer-events: none;
+    }
+    .lb-nav button {
+      width: 40px; height: 40px; background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2); color: white;
+      border-radius: 50%; cursor: pointer; font-size: 1rem;
+      pointer-events: all; transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lb-nav button:hover { background: rgba(201,147,58,0.3); border-color: var(--gold-light); }
+    .lb-counter {
+      margin-top: 12px; font-size: 0.72rem; letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* FOOTER */
+    .site-footer {
+      background: #1E0F07; color: #7A5C45;
+      text-align: center; padding: 28px 24px;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif; font-style: italic;
+      font-size: 1.2rem; color: #EDE5D8; margin-bottom: 8px;
+    }
+    .footer-text { font-size: 0.75rem; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .masonry { columns: 2 160px; column-gap: 10px; }
+      .masonry-item { margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo"><em>Viki's</em> <span>Kitchen</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#recipes">Recipes</a></li>
+      <li><a href="gallery.html" class="active">Photos</a></li>
+      <li><a href="index.html#about">About Viki</a></li>
+      <li><a href="mailto:recipes@vikiskitchen.com">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page-header">
+  <p class="page-label">Memories</p>
+  <h1 class="page-title">Photos</h1>
+  <p class="page-count">238 photos</p>
+</div>
+
+<div class="gallery-wrap">
+  <div class="masonry" id="masonryGrid"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-logo">Viki's Kitchen</div>
+  <p class="footer-text">A family recipe archive, hosted with love.</p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-inner">
+    <button class="lb-close" id="lbClose">✕</button>
+    <div class="lb-img-wrap">
+      <img id="lbImg" src="" alt="Gallery photo">
+    </div>
+    <div class="lb-nav">
+      <button id="lbPrev">&#8592;</button>
+      <button id="lbNext">&#8594;</button>
+    </div>
+    <div class="lb-counter" id="lbCounter"></div>
+  </div>
+</div>
+
+<script>
+const photos = [
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/e61520bd-d7a3-41d5-8248-2937db6e816a/116266165_3478961122113959_8101577902164800735_n.jpg?format=original", local: "gallery/116266165_3478961122113959_8101577902164800735_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/71a47948-8846-43ee-9e1b-d3e7891f7235/IMG_0188.JPG?format=original", local: "gallery/img_0188.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/408deade-e7e3-449b-b59a-c4f34e0b680e/IMG_0197.JPG?format=original", local: "gallery/img_0197.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/87ab8a52-b9a0-42ae-b3c2-6303c0f3810f/IMG_0435.JPG?format=original", local: "gallery/img_0435.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/a1216c55-b296-4461-a7cc-630d701a3b24/IMG_0687.JPG?format=original", local: "gallery/img_0687.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0c3b2245-b61e-4ffa-b648-681033173685/IMG_0731.JPG?format=original", local: "gallery/img_0731.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/fce8003e-6841-42af-b39a-289cd26a1342/IMG_0753.JPG?format=original", local: "gallery/img_0753.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/319537e4-35dd-47ba-ad7c-c13db96c253c/IMG_0792.JPG?format=original", local: "gallery/img_0792.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ed0086ea-8e9e-4987-afbe-1b9b4324aa71/IMG_0809.jpg?format=original", local: "gallery/img_0809.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/637aaf90-87e6-429e-b4b6-e7344e3d7896/IMG_0820.JPG?format=original", local: "gallery/img_0820.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7932d57c-cfbb-4dd2-889f-e45b5b9c2c4d/IMG_0927.JPG?format=original", local: "gallery/img_0927.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ed5bd1de-5955-4a9e-84c0-3459895d6d3b/IMG_1112.jpg?format=original", local: "gallery/img_1112.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ab99e0f9-7e9a-43de-acbe-eff2c5a59361/IMG_1594.JPG?format=original", local: "gallery/img_1594.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0b578380-616f-45c7-a0d3-315d81510831/IMG_2035.JPG?format=original", local: "gallery/img_2035.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4f69f13a-264e-4ae5-8d82-9c6c64b8428d/IMG_3063.JPG?format=original", local: "gallery/img_3063.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/d5b4c7e7-6326-4498-b0bc-9876cdaeca9f/IMG_3126.JPG?format=original", local: "gallery/img_3126.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/fda0c29e-c9b6-425d-8b5c-3d0ebce6f5ec/IMG_3462.JPG?format=original", local: "gallery/img_3462.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9145ce57-d637-4f73-b496-8d638c7ed00f/IMG_3475.JPG?format=original", local: "gallery/img_3475.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/2e656833-e343-44a2-8869-ff5d7129072b/Scan_20220222+%2850%29.png?format=original", local: "gallery/scan_20220222_%2850%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/132892da-7b9b-4686-8394-50a20dbc53e8/Tozier%2C+Viki.JPG?format=original", local: "gallery/tozier%2c_viki.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/617dd54b-40a8-4a0a-9672-1d8840f745b0/249457_226613477348756_7918441_n.jpg?format=original", local: "gallery/249457_226613477348756_7918441_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4d016858-94cd-47e3-8e9c-10e4769b6a0f/261815_241538305856273_4750075_n.jpg?format=original", local: "gallery/261815_241538305856273_4750075_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/bdcd5ff3-0f7b-483a-a4fd-36aa48dbc72a/265596_245885545421549_5973468_o.jpg?format=original", local: "gallery/265596_245885545421549_5973468_o.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/2922f36c-123f-47c1-b493-c12067b18e61/267338_241538382522932_3310126_n.jpg?format=original", local: "gallery/267338_241538382522932_3310126_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b6c31601-3003-4d9f-81f8-82a97d99dc8e/1487887_723185974358168_1201375112_o.jpg?format=original", local: "gallery/1487887_723185974358168_1201375112_o.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/73f5777f-11df-4a5c-a193-f51c8025f228/1557410_724288760914556_1711491339_o.jpg?format=original", local: "gallery/1557410_724288760914556_1711491339_o.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f81b979d-a673-4ac9-ad78-37db1e0b7629/10673155_852801004729997_1676776312_o.jpg?format=original", local: "gallery/10673155_852801004729997_1676776312_o.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b895ab9f-79fd-4a41-83cc-eb3b748f290c/11896050_1036837619659667_5327001932136813628_n.jpg?format=original", local: "gallery/11896050_1036837619659667_5327001932136813628_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cb2910aa-258c-4a5d-ba72-96704cc07455/36514934_10204605912264079_6207696286527782912_n.jpg?format=original", local: "gallery/36514934_10204605912264079_6207696286527782912_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/268e708e-78e8-4822-990f-5a33c3b8e059/36667903_10216504045654776_5191690664210857984_n.jpg?format=original", local: "gallery/36667903_10216504045654776_5191690664210857984_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/3a6621f1-5eb9-4a25-9381-2bf29df75c6e/56661826_2399218646754884_2390965099197104128_n.jpg?format=original", local: "gallery/56661826_2399218646754884_2390965099197104128_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/e902e24b-143e-4aee-b1c2-c3288cd26e2c/IMG_0003.JPG?format=original", local: "gallery/img_0003.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/02d602f7-3487-49b8-9d0b-3b2fd647be97/IMG_0018.JPG?format=original", local: "gallery/img_0018.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6f882642-ef06-4e12-8fc5-3891d0256630/IMG_0047.JPG?format=original", local: "gallery/img_0047.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/5595ddcb-cd27-48a2-9105-233ee0aba28f/IMG_0173.JPG?format=original", local: "gallery/img_0173.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9ef56c62-3ec6-4149-9611-84ebeceb9ae7/IMG_0253.jpg?format=original", local: "gallery/img_0253.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0031dfa9-6e77-403b-b722-4b713df66c2b/IMG_0296.jpg?format=original", local: "gallery/img_0296.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/90ab0a7f-8a3d-4ea1-9656-48df7ea7f6a4/IMG_0302.jpg?format=original", local: "gallery/img_0302.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/2ba43cbb-1c5c-4ffe-87a7-56a9404163f2/IMG_0408.JPG?format=original", local: "gallery/img_0408.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ef4f6ddc-1555-4cec-96c4-4ae0b9f28cea/IMG_0638.JPG?format=original", local: "gallery/img_0638.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/827869cc-f280-4995-93f4-926cb9b43b90/IMG_0878.JPG?format=original", local: "gallery/img_0878.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/89c133f9-d5e6-46ca-af25-74654b84b785/IMG_0937.JPG?format=original", local: "gallery/img_0937.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/aaf423e0-7e1b-44e8-85bc-62e8164b74d2/IMG_1158.JPG?format=original", local: "gallery/img_1158.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f5db8f70-8ea6-48ee-8a3e-9d6f59508abe/IMG_1480.JPG?format=original", local: "gallery/img_1480.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/588f9186-74a2-4b61-8638-439f69aebb0a/IMG_1657.JPG?format=original", local: "gallery/img_1657.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cc946ba6-1084-4814-80b1-36f65b37bf37/IMG_1941.jpg?format=original", local: "gallery/img_1941.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/fb2ac421-58ed-4cba-b363-7b1b270d8403/IMG_2079.JPG?format=original", local: "gallery/img_2079.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f96da39e-b2e8-4fad-9517-8918e28335ae/IMG_2089.jpg?format=original", local: "gallery/img_2089.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6590bc7f-35df-4df4-b1ea-daf90ac9f33e/IMG_3178.jpg?format=original", local: "gallery/img_3178.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/15f859f2-5a7d-4dda-847a-6ef0459c39e2/IMG_3805.JPG?format=original", local: "gallery/img_3805.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/45965b6e-5419-4764-9cae-29c3d5888d23/IMG_4117.JPG?format=original", local: "gallery/img_4117.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1d00db2d-7bcc-46d1-b20c-8cd2327f0c08/IMG_4590.JPG?format=original", local: "gallery/img_4590.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/fdcc7c2c-b215-4532-8e23-738b4955df2a/226237_226612620682175_6955116_n.jpg?format=original", local: "gallery/226237_226612620682175_6955116_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/80cfd6a0-2996-4e8d-86e6-384a24deabb2/259876_241538679189569_6111681_n.jpg?format=original", local: "gallery/259876_241538679189569_6111681_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cfb11a82-5cb4-4a57-8b37-cc2a80f9497e/262277_2144844503272_7112214_n.jpg?format=original", local: "gallery/262277_2144844503272_7112214_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f483e301-10f0-4a95-821e-036c20a13679/306050_587575857919181_116364292_n.jpg?format=original", local: "gallery/306050_587575857919181_116364292_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b07d9d93-2adb-4d14-94e7-f732e9b53ac3/401337_584145808262186_1698110384_n.jpg?format=original", local: "gallery/401337_584145808262186_1698110384_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ff17af0f-cc67-495c-94cf-60c96f9574af/10325344_1109183332425095_1877733402904859619_n.jpg?format=original", local: "gallery/10325344_1109183332425095_1877733402904859619_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1962de31-7878-408e-a415-285c8786738e/12144738_10200919952997401_1654176273842288811_n.jpg?format=original", local: "gallery/12144738_10200919952997401_1654176273842288811_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/714aede3-857a-42cd-a6ea-98be0d1222ac/19702336_10213323363261182_4667489817737609117_n.jpg?format=original", local: "gallery/19702336_10213323363261182_4667489817737609117_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6434a85c-6f12-40c1-a8c2-a80f8e56287f/21370904_1657772940899462_2525310829238233143_n.jpg?format=original", local: "gallery/21370904_1657772940899462_2525310829238233143_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/5b663f58-c787-4aae-a78e-ec632f0a03ae/21557770_1657914540885302_6714247981947477795_n.jpg?format=original", local: "gallery/21557770_1657914540885302_6714247981947477795_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/00f9ad55-241f-4d00-8dbf-673e8fe22cb9/30127447_10215814254251900_5924330119752581120_n.jpg?format=original", local: "gallery/30127447_10215814254251900_5924330119752581120_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/593a4da8-c45e-4784-ba53-785fa084760d/31038485_10214522262762952_4302618741583118336_n.jpg?format=original", local: "gallery/31038485_10214522262762952_4302618741583118336_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/636b085f-8f62-4b41-ba08-9fdf69855f7a/36663822_1979423682067718_8203886181063065600_n.jpg?format=original", local: "gallery/36663822_1979423682067718_8203886181063065600_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f7014b87-3bb6-43a1-b10a-738ab2a76853/39048338_10212485734603421_8084573007487434752_n.jpg?format=original", local: "gallery/39048338_10212485734603421_8084573007487434752_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/8c2f9668-633f-4703-af4c-484f6be26c0d/39086624_2055994711077316_3978985637205245952_n.jpg?format=original", local: "gallery/39086624_2055994711077316_3978985637205245952_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cbfd0037-ac59-478d-b788-a2e628fa126d/46652405_10217646368253605_5887163070500831232_n.jpg?format=original", local: "gallery/46652405_10217646368253605_5887163070500831232_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ccc1e59f-d75a-4de6-b4e0-8c8008429d39/IMG_0656.jpg?format=original", local: "gallery/img_0656.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0db4bb96-902e-423d-8d53-b2e6b574f362/IMG_0700.JPG?format=original", local: "gallery/img_0700.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0021c259-773f-48a8-a9cf-5a9b2d18c853/IMG_0733.JPG?format=original", local: "gallery/img_0733.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/d45e7417-a73f-4740-9d06-00c1b15cfe63/IMG_0765.JPG?format=original", local: "gallery/img_0765.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f428e61d-53a1-40df-85fc-02acf3bdc70e/IMG_0843.JPG?format=original", local: "gallery/img_0843.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/5000aa50-1068-4030-a2e0-d2e325e00326/IMG_0844.JPG?format=original", local: "gallery/img_0844.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/adaee940-f645-49ab-8498-79ae3d039b7a/IMG_0938.JPG?format=original", local: "gallery/img_0938.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/78890ba1-2aec-44b2-8d08-eedfcf6cf73e/Scan_20220220+%287%29.png?format=original", local: "gallery/scan_20220220_%287%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f383e671-2185-4ae0-b659-4621e79e7f47/Scan_20220220+%2821%29.png?format=original", local: "gallery/scan_20220220_%2821%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c4fee257-c39d-40e2-98f8-46d752044bcf/Scan_20220220+%2834%29.png?format=original", local: "gallery/scan_20220220_%2834%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/3a6a79dd-a135-4b4b-a98e-fc41922f3674/38550_1352080967111_2993471_n.jpg?format=original", local: "gallery/38550_1352080967111_2993471_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/df913e11-ecf8-4e49-ba64-eb1834e0cb1d/303964_2557719544890_98524202_n.jpg?format=original", local: "gallery/303964_2557719544890_98524202_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/358a75d8-1002-40d4-8071-acfd0207c125/320734_265124970195677_439517273_n.jpg?format=original", local: "gallery/320734_265124970195677_439517273_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/51f6aaa9-fa0b-4973-8b34-13f3b49cd333/425650_3172461833063_630054622_n.jpg?format=original", local: "gallery/425650_3172461833063_630054622_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/91d7912e-6eaa-4dde-bf2b-c0c875a9df67/10366295_10203595782957754_3821610779587489144_n.jpg?format=original", local: "gallery/10366295_10203595782957754_3821610779587489144_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6061625b-31c4-4e58-9aad-e5d76d275a13/11110262_10206472665076531_8009059525749379085_n.jpg?format=original", local: "gallery/11110262_10206472665076531_8009059525749379085_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b53e2da4-9772-46d0-b52a-bd109911e509/11351176_10206777768265398_5012454492499909382_n.jpg?format=original", local: "gallery/11351176_10206777768265398_5012454492499909382_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9e91ee06-e5ad-4e56-b4d0-ada5f9d09db5/12186290_10207708912101934_2923188996936380608_o.jpg?format=original", local: "gallery/12186290_10207708912101934_2923188996936380608_o.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/033dd967-3e6c-4295-8353-cf2f1759ba9e/IMG_0019.jpg?format=original", local: "gallery/img_0019.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/39950bcb-4c3f-4774-90cf-c10e305a5ad4/IMG_0109.jpg?format=original", local: "gallery/img_0109.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b13ca0e0-1064-495d-9ca4-70d98ba41c80/IMG_0274%281%29.jpg?format=original", local: "gallery/img_0274%281%29.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/30bfae6e-8a8f-427a-91b3-e5e6600fb5a8/IMG_0411.JPG?format=original", local: "gallery/img_0411.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7038082c-d464-42de-914e-ed21c9345852/IMG_0698.JPG?format=original", local: "gallery/img_0698.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/011d745a-ed8a-46b1-a990-053cb2f8f2d6/IMG_0703.JPG?format=original", local: "gallery/img_0703.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/66d8a47a-0b14-4c8f-a8d8-beb6333648e6/IMG_0773.JPG?format=original", local: "gallery/img_0773.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/e5b577b2-20b7-4826-8dd7-d5d29e011df4/IMG_0783.JPG?format=original", local: "gallery/img_0783.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1d4d4f4b-e018-4218-b888-002a65d4c7b7/IMG_0830.jpg?format=original", local: "gallery/img_0830.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/39ca5fe3-8c64-4484-8899-3f58ed5eb0ed/IMG_0840.JPG?format=original", local: "gallery/img_0840.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/05cacc30-32af-46a5-8588-f8aa3dafd56e/IMG_0841.JPG?format=original", local: "gallery/img_0841.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/5201b4a3-6f84-4e12-aac4-f6c621d2f719/IMG_0842.JPG?format=original", local: "gallery/img_0842.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c09f4e30-28c5-4b97-93db-8a2cee0b76d2/IMG_0845.JPG?format=original", local: "gallery/img_0845.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f13578fe-f694-4e14-b100-40462f9079fc/IMG_0846.JPG?format=original", local: "gallery/img_0846.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/04e1231b-f267-45c3-978e-41f3263888a1/IMG_1302.jpg?format=original", local: "gallery/img_1302.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c560eed4-6a24-423d-a5c8-8148db883168/IMG_1609.JPG?format=original", local: "gallery/img_1609.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/957b2149-60ce-40c6-aa99-515bd4464cc2/IMG_2098.JPG?format=original", local: "gallery/img_2098.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0e29226a-2a5b-48a5-a64b-62477735fdcc/IMG_2103.JPG?format=original", local: "gallery/img_2103.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/774f4ad7-9bef-4f95-afa9-c2758e14f38e/IMG_3444.JPG?format=original", local: "gallery/img_3444.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c73e7131-df01-4efa-8207-e46482497a60/IMG_4504.JPG?format=original", local: "gallery/img_4504.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6cfcced9-23dc-4537-a375-edcc72962843/IMG_4583.JPG?format=original", local: "gallery/img_4583.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cf78f681-383a-4214-9111-bb387acae796/Scan_20220220+%283%29.png?format=original", local: "gallery/scan_20220220_%283%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/392ecdb6-8dad-41a3-8b18-1faa4a0aec9f/40532_1349797270020_7875283_n.jpg?format=original", local: "gallery/40532_1349797270020_7875283_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4394f487-9ded-41b0-b98f-7d24026727a7/40532_1349797350022_1655021_n.jpg?format=original", local: "gallery/40532_1349797350022_1655021_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ac359c95-a193-4e5c-8f51-46add7bb1e81/162742_1779923700480_7859674_n.jpg?format=original", local: "gallery/162742_1779923700480_7859674_n.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f8376e7f-8922-465c-a3b7-2e7a4abd92f6/IMG_0075.jpg?format=original", local: "gallery/img_0075.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/98b1b0fb-effc-4b0a-ad4a-7cb5e1cda25a/IMG_0101.jpg?format=original", local: "gallery/img_0101.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6b41e281-f741-4c49-828d-6bfab5d5dcdf/IMG_0104.jpg?format=original", local: "gallery/img_0104.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9d80921a-dff3-40b0-ad31-85283f301f6a/IMG_0295.jpg?format=original", local: "gallery/img_0295.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/200602c7-be5f-4876-b086-f9d3e2bf21a6/IMG_1103.JPG?format=original", local: "gallery/img_1103.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9ae187b0-a9e4-4b16-bc3f-ae557e73deda/IMG_5239.JPG?format=original", local: "gallery/img_5239.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/490b3e9d-9ad4-4d9d-bdf9-c2ecda7e626e/IMG_5281.JPG?format=original", local: "gallery/img_5281.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/e92d90ae-2f48-491d-b897-eef964a4bdd4/IMG_5305.JPG?format=original", local: "gallery/img_5305.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/71f6086c-fcff-4f6d-8965-39ec4b2acd2d/Scan_20220220+%282%29.png?format=original", local: "gallery/scan_20220220_%282%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1aa71ef2-4101-414a-9275-985af30705cc/Scan_20220220+%284%29.png?format=original", local: "gallery/scan_20220220_%284%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ddb4e8b2-448b-4664-9184-8892b02caae2/Scan_20220220+%2813%29.png?format=original", local: "gallery/scan_20220220_%2813%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/03779f6c-7f3e-41dc-ae31-6509fe8bc9b4/Scan_20220220+%2816%29.png?format=original", local: "gallery/scan_20220220_%2816%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b625b425-276c-4a54-9355-5dd3b238f3bd/Scan_20220220+%2817%29.png?format=original", local: "gallery/scan_20220220_%2817%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/a362e256-d900-444a-8b45-705d47eb27d3/Scan_20220220+%2819%29.png?format=original", local: "gallery/scan_20220220_%2819%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/497dec2e-5d4e-4644-9657-441bca5f12c1/Scan_20220220.png?format=original", local: "gallery/scan_20220220.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/49dd33fc-9852-4666-8868-a0a9b7b93eb0/Viki%2C+Ben%2C+Stephen%2C+David.png?format=original", local: "gallery/viki%2c_ben%2c_stephen%2c_david.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7582f580-fc2f-4a93-87a9-3d6ad6b36774/Scan_20220220+%285%29.png?format=original", local: "gallery/scan_20220220_%285%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f7b31805-e08c-4c40-868e-f63f46e9f7b6/Scan_20220220+%286%29.png?format=original", local: "gallery/scan_20220220_%286%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ee1c093d-bb3b-466a-bb7e-d015fd6794b1/Scan_20220220+%288%29.png?format=original", local: "gallery/scan_20220220_%288%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9a46d5a4-6f58-4536-a639-d329a6929845/Scan_20220220+%289%29.png?format=original", local: "gallery/scan_20220220_%289%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ab5e5fc8-761d-4b39-bc07-f2cb4db115a4/Scan_20220220+%2810%29.png?format=original", local: "gallery/scan_20220220_%2810%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/094ffc1c-e742-4720-935c-50344e9ec110/Scan_20220220+%2811%29.png?format=original", local: "gallery/scan_20220220_%2811%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/d85fba2d-1ae7-4f09-bf05-751e8d3e52b7/Scan_20220220+%2812%29.png?format=original", local: "gallery/scan_20220220_%2812%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/d3d9cd16-6047-4d48-8a03-a3ed005b4427/Scan_20220220+%2814%29.png?format=original", local: "gallery/scan_20220220_%2814%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/2026edcd-3781-4580-bce3-f8aaa580cca9/Scan_20220220+%2820%29.png?format=original", local: "gallery/scan_20220220_%2820%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/a4c3901f-2a63-4a4a-ab60-970159f2221c/Scan_20220220+%2822%29.png?format=original", local: "gallery/scan_20220220_%2822%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4346eef7-300c-458c-b75c-b222674ad3ea/SCU+Graduation.png?format=original", local: "gallery/scu_graduation.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/d58067c5-5d39-4a56-ba82-97c36cac72ea/Church+Directory+1987.png?format=original", local: "gallery/church_directory_1987.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ba1a2b22-68b1-415f-8e20-479d8144238b/Scan_20220220+%2815%29.png?format=original", local: "gallery/scan_20220220_%2815%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c4373c3b-d62f-4bc0-b289-ca069aa49e93/Scan_20220220+%2818%29.png?format=original", local: "gallery/scan_20220220_%2818%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/000563b5-f44b-4ede-8a16-c4af98ab181e/Scan_20220220+%2823%29.png?format=original", local: "gallery/scan_20220220_%2823%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7fc4955a-2c0e-4732-a27b-30f8695de302/Scan_20220220+%2824%29.png?format=original", local: "gallery/scan_20220220_%2824%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0e774d22-710e-4de6-b4af-9b93b1f545b4/Scan_20220220+%2825%29.png?format=original", local: "gallery/scan_20220220_%2825%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/80eff699-d5e0-4d51-b177-04acaebbd481/Scan_20220220+%2826%29.png?format=original", local: "gallery/scan_20220220_%2826%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cbc566eb-b9b5-4789-8342-a3398e2171d7/Scan_20220220+%2827%29.png?format=original", local: "gallery/scan_20220220_%2827%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/3914507b-e22d-4543-bc38-bad7de871274/Scan_20220220+%2829%29.png?format=original", local: "gallery/scan_20220220_%2829%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b52c1ba6-93d6-403e-b961-d1a91b7d46b9/Scan_20220220+%2832%29.png?format=original", local: "gallery/scan_20220220_%2832%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/e511255d-bfda-451c-aafd-cd27b6d262db/Scan_20220222+%2812%29.png?format=original", local: "gallery/scan_20220222_%2812%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/a4285cda-d4b2-47dc-9d3a-a9da18a2d738/Scan_20220222+%2827%29.png?format=original", local: "gallery/scan_20220222_%2827%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9333eefd-1369-4753-943e-c741900c706a/Scan_20220222.png?format=original", local: "gallery/scan_20220222.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7f7a39ff-0fde-4a8c-a60e-f3fd634ad727/Scan_20220220+%2828%29.png?format=original", local: "gallery/scan_20220220_%2828%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/886a1884-47d1-4ca0-8f12-f95b77116362/Scan_20220220+%2830%29.png?format=original", local: "gallery/scan_20220220_%2830%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/eaee4810-44b5-4da6-ba0e-2eb46a980ba4/Scan_20220220+%2831%29.png?format=original", local: "gallery/scan_20220220_%2831%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6c8bc11c-9e0f-453d-8109-ad3cabe2ff33/Scan_20220220+%2833%29.png?format=original", local: "gallery/scan_20220220_%2833%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/95c38bb3-d405-4d61-a3a8-116b09fafe29/Scan_20220220+%2835%29.png?format=original", local: "gallery/scan_20220220_%2835%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f8521578-3a52-4594-8166-084609579439/Scan_20220220+%2836%29.png?format=original", local: "gallery/scan_20220220_%2836%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/bd091768-34f1-4716-86ca-08dd1cbac32a/Scan_20220222+%282%29.png?format=original", local: "gallery/scan_20220222_%282%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f0dfd19e-d393-41de-a1b1-51d23a3eb9a8/Scan_20220222+%283%29.png?format=original", local: "gallery/scan_20220222_%283%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/2b0a03a5-1857-4371-a63b-9016c4979fcd/Scan_20220222+%284%29.png?format=original", local: "gallery/scan_20220222_%284%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c3f97697-8cd0-448b-aa07-5ed77e506e64/Scan_20220222+%2851%29.png?format=original", local: "gallery/scan_20220222_%2851%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ef3c97ef-58f7-4efb-8e61-2dbdcc767a6c/Scan_20220222+%285%29.png?format=original", local: "gallery/scan_20220222_%285%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/91dd37cd-8215-4616-b4da-81a5760dd30b/Scan_20220222+%286%29.png?format=original", local: "gallery/scan_20220222_%286%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/12499cd2-437f-45cb-b4a7-b690a7f8c1e5/Scan_20220222+%287%29.png?format=original", local: "gallery/scan_20220222_%287%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/5922d0b3-827c-4fc8-b3c2-adbf7454bd0f/Scan_20220222+%288%29.png?format=original", local: "gallery/scan_20220222_%288%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b54d3d1f-50b5-470e-8c35-7f204af4f6d1/Scan_20220222+%289%29.png?format=original", local: "gallery/scan_20220222_%289%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f8d6973c-0aff-4fd4-ba95-b595ac0e6e2c/Scan_20220222+%2810%29.png?format=original", local: "gallery/scan_20220222_%2810%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1b1701fb-9639-402e-9e91-8d88173f2370/Scan_20220222+%2811%29.png?format=original", local: "gallery/scan_20220222_%2811%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f0919fa2-a031-407f-aa5b-3975245ec372/Scan_20220222+%2813%29.png?format=original", local: "gallery/scan_20220222_%2813%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/dc67b634-726f-4a7d-80ac-f06fcb9e2322/Scan_20220222+%2814%29.png?format=original", local: "gallery/scan_20220222_%2814%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/41939696-40a6-4105-a6dd-4f4281cd5eba/Scan_20220222+%2816%29.png?format=original", local: "gallery/scan_20220222_%2816%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/705924c3-78a0-4c3e-b2a3-aa8e339e5a09/Scan_20220222+%2822%29.png?format=original", local: "gallery/scan_20220222_%2822%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/bc98dda0-f6da-4016-aa2a-781e552a5d7c/Scan_20220222+%2823%29.png?format=original", local: "gallery/scan_20220222_%2823%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/892fb097-1eac-4aeb-821f-19b343581400/Scan_20220222+%2835%29.png?format=original", local: "gallery/scan_20220222_%2835%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/30a8bb9d-2491-47f7-98f3-feaa99aa32e9/Scan_20220222+%2815%29.png?format=original", local: "gallery/scan_20220222_%2815%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f519b48b-60fd-435b-a194-239eb783e7fe/Scan_20220222+%2817%29.png?format=original", local: "gallery/scan_20220222_%2817%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/686b63a0-6744-46ee-8d0f-716afe145bff/Scan_20220222+%2818%29.png?format=original", local: "gallery/scan_20220222_%2818%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/d08d253c-8997-4706-9565-60a93102a563/Scan_20220222+%2820%29.png?format=original", local: "gallery/scan_20220222_%2820%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/dcc75eec-9f51-4418-ae05-5e3cac07d95e/Scan_20220222+%2824%29.png?format=original", local: "gallery/scan_20220222_%2824%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ff8d946a-66cc-46bd-a593-96ee55aba5d8/Scan_20220222+%2826%29.png?format=original", local: "gallery/scan_20220222_%2826%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/733e442a-1510-4a92-baac-483e7f7c95d8/Scan_20220222+%2828%29.png?format=original", local: "gallery/scan_20220222_%2828%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/38bc1c9f-8a30-4ee4-a1f1-ad3f60ab3a44/Scan_20220222+%2829%29.png?format=original", local: "gallery/scan_20220222_%2829%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/79eb1999-3d4a-443d-8ac3-ecc5b8ea44de/Scan_20220222+%2831%29.png?format=original", local: "gallery/scan_20220222_%2831%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/416b5d18-5dc0-488f-bc62-6d21e26022da/Scan_20220222+%2837%29.png?format=original", local: "gallery/scan_20220222_%2837%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/2c23754a-bd93-4a00-8562-d80b0f24926b/Scan_20220222+%2838%29.png?format=original", local: "gallery/scan_20220222_%2838%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f5ea37a6-5aaf-46ca-b5e5-2bf342ddfe3f/Scan_20220222+%2852%29.png?format=original", local: "gallery/scan_20220222_%2852%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/05acf770-2916-4d37-a485-3bf4023930ca/Scan_20220222+%2819%29.png?format=original", local: "gallery/scan_20220222_%2819%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7dacd198-5f8b-4ed7-b202-d1744c57f94c/Scan_20220222+%2821%29.png?format=original", local: "gallery/scan_20220222_%2821%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/205bc6cc-3290-413b-b79d-7a973587ac9a/Scan_20220222+%2832%29.png?format=original", local: "gallery/scan_20220222_%2832%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/38540c54-b6b2-4e05-9cba-0d33dfe456fd/Scan_20220222+%2833%29.png?format=original", local: "gallery/scan_20220222_%2833%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/beb0987f-7137-4463-af00-f414648acc2b/Scan_20220222+%2836%29.png?format=original", local: "gallery/scan_20220222_%2836%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/53513638-f6e0-4c5a-8b7a-08b0fc3aaa80/Scan_20220222+%2840%29.png?format=original", local: "gallery/scan_20220222_%2840%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/067ad76f-888c-428e-b15e-16926fd36f84/Scan_20220222+%2846%29.png?format=original", local: "gallery/scan_20220222_%2846%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4d654ca9-b39f-41ea-8d13-f012d5a00890/Scan_20220222+%2847%29.png?format=original", local: "gallery/scan_20220222_%2847%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/cd8572e6-ca25-4364-8439-8eba151c7ab1/Scan_20220222+%2849%29.png?format=original", local: "gallery/scan_20220222_%2849%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/856072fe-5f52-4731-a5b7-1e8687db3f79/IMG_0165.jpg?format=original", local: "gallery/img_0165.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ed9501a2-40c2-4e7e-b30d-a0eacee83e74/IMG_0274.JPG?format=original", local: "gallery/img_0274.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/e6c1b599-26cd-4e15-98d6-aa5b480c9c56/IMG_5403.PNG?format=original", local: "gallery/img_5403.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/bd21e114-690d-419a-824d-f96232bf878d/Photo+2022-02-23+12.26.18+PM.png?format=original", local: "gallery/photo_2022-02-23_12.26.18_pm.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/64f99bca-fb25-4ddd-bb94-3898e5bfb8fd/Scan_20220222+%2825%29.png?format=original", local: "gallery/scan_20220222_%2825%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/785de0a1-c1a7-45f0-a50c-daec1c64b7e8/Scan_20220222+%2830%29.png?format=original", local: "gallery/scan_20220222_%2830%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b714cc92-1ec9-4ed0-9dfe-9f6fd2aea445/Scan_20220222+%2834%29.png?format=original", local: "gallery/scan_20220222_%2834%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/501219f3-3979-4dc0-af45-d77da7bad7a4/Scan_20220222+%2841%29.png?format=original", local: "gallery/scan_20220222_%2841%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/84d9172d-5d5e-4d63-87f9-b02bb80067cf/Scan_20220222+%2842%29.png?format=original", local: "gallery/scan_20220222_%2842%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c5af5f77-1449-426b-938c-864b7e2def5c/Scan_20220222+%2843%29.png?format=original", local: "gallery/scan_20220222_%2843%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b39f9ff9-3edd-433e-8e12-7ca063fdb2ce/Scan_20220222+%2848%29.png?format=original", local: "gallery/scan_20220222_%2848%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4d3672ad-6d18-4bf3-aa7b-ee4e5bb8687b/Scan_20220222+%2853%29.png?format=original", local: "gallery/scan_20220222_%2853%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ba770128-3287-40ac-9450-09cce2776975/IMG_0006.JPG?format=original", local: "gallery/img_0006.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ca41c86b-95d7-474f-bf1b-a09038ca537c/IMG_0100.jpg?format=original", local: "gallery/img_0100.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4bf22314-5fd2-451d-85e3-dcccfafe809f/IMG_0136.jpg?format=original", local: "gallery/img_0136.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/4c92fa07-9c80-4b4a-b3d1-535ece1ffe66/IMG_0174.JPG?format=original", local: "gallery/img_0174.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/a24782f7-0c8d-4570-8b2e-30a9d64e9008/IMG_0311.JPG?format=original", local: "gallery/img_0311.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/72ed8d17-a3b5-4ddf-ad8b-088a36da12ed/IMG_0317.jpg?format=original", local: "gallery/img_0317.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7c0e4d71-65aa-4566-a2f5-4cc3f6f89bf5/IMG_0597.JPG?format=original", local: "gallery/img_0597.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/f15b4f7f-44ba-40d6-9512-82299a11a1ed/IMG_0928.PNG?format=original", local: "gallery/img_0928.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/6382cbf0-b490-4439-948b-052e330f4411/IMG_1947.JPG?format=original", local: "gallery/img_1947.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/8c894f2f-7434-4ea0-a3fe-04ae47138c7b/IMG_2821.JPG?format=original", local: "gallery/img_2821.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/43e88a4f-695b-41fa-88e2-43506bad6762/IMG_2883.JPG?format=original", local: "gallery/img_2883.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/30938f0e-e97e-4731-b1f5-c19ccdda190d/IMG_2917.JPG?format=original", local: "gallery/img_2917.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/70ff82bf-0272-4a06-bb9f-65185adcbba2/IMG_2924.JPG?format=original", local: "gallery/img_2924.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7f77d26c-0cc4-495a-8e0c-d300a1b6547c/IMG_5405.PNG?format=original", local: "gallery/img_5405.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/89a8bc04-fbaa-46e6-949f-2a1afeab8083/Scan_20220222+%2839%29.png?format=original", local: "gallery/scan_20220222_%2839%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/871b47de-fd6e-48f0-8083-4d1a8dd32a52/Scan_20220222+%2844%29.png?format=original", local: "gallery/scan_20220222_%2844%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7feac446-2f10-44c1-a697-e31eccff77d1/Scan_20220222+%2845%29.png?format=original", local: "gallery/scan_20220222_%2845%29.png" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/97f5163a-1aa9-4010-bbd7-907ff7ae4984/IMG_0129.jpg?format=original", local: "gallery/img_0129.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/3611b27b-d7bf-4bb1-9155-013ec77b6cf5/IMG_1728.JPG?format=original", local: "gallery/img_1728.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ec40b5d3-3a47-4989-ba77-5bbcef8dd11c/IMG_2809.JPG?format=original", local: "gallery/img_2809.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0df06a09-7d81-4de1-bf9b-eeff84cdaaa9/IMG_2826.JPG?format=original", local: "gallery/img_2826.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/7cb3bfba-2669-4bd1-bcde-b4132b6bbb25/IMG_2918.JPG?format=original", local: "gallery/img_2918.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/fd588d19-71c9-474f-a2b6-ed321ab0041e/IMG_2919.JPG?format=original", local: "gallery/img_2919.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/ad97c065-97cc-46e8-9c1b-30b0cf4857c2/IMG_2920.JPG?format=original", local: "gallery/img_2920.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/0b22145b-76b8-4c23-9b20-ba9a0ab7e23f/IMG_2922.JPG?format=original", local: "gallery/img_2922.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/9c0b7062-b0e6-468f-899f-3c0e78433501/IMG_2923.JPG?format=original", local: "gallery/img_2923.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/b37504d7-3272-415c-b6e7-817fe2fcdcc1/IMG_2925.JPG?format=original", local: "gallery/img_2925.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/3cc06558-0fb7-43bb-aa7f-62ec9d9c50b6/IMG_3420.JPG?format=original", local: "gallery/img_3420.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/864d1990-b100-4af7-b052-47bc67e5cffd/IMG_3424.JPG?format=original", local: "gallery/img_3424.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/c76a2295-c873-4041-b613-2a8cb1d8f505/IMG_3866.JPG?format=original", local: "gallery/img_3866.jpg" },
+  { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/49eb44bb-7908-4861-9f51-60587feab814/IMG_8599.JPG?format=original", local: "gallery/img_8599.jpg" }
+];
+
+function getSrc(p) {
+  // Try local path first; Squarespace CDN as fallback
+  return p.url;
+}
+
+const grid = document.getElementById('masonryGrid');
+let currentIdx = 0;
+
+// Build grid
+photos.forEach((p, i) => {
+  const div = document.createElement('div');
+  div.className = 'masonry-item';
+  div.innerHTML = `
+    <img src="${getSrc(p)}" alt="Photo ${i+1}" loading="lazy">
+    <div class="hover-icon"><span>View</span></div>
+  `;
+  div.addEventListener('click', () => openLb(i));
+  grid.appendChild(div);
+});
+
+// Lightbox
+const lb = document.getElementById('lightbox');
+const lbImg = document.getElementById('lbImg');
+const lbCounter = document.getElementById('lbCounter');
+
+function openLb(idx) {
+  currentIdx = idx;
+  updateLb();
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function updateLb() {
+  lbImg.src = getSrc(photos[currentIdx]);
+  lbCounter.textContent = (currentIdx + 1) + ' / ' + photos.length;
+}
+
+document.getElementById('lbClose').addEventListener('click', closeLb);
+lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+document.getElementById('lbPrev').addEventListener('click', () => { currentIdx = (currentIdx - 1 + photos.length) % photos.length; updateLb(); });
+document.getElementById('lbNext').addEventListener('click', () => { currentIdx = (currentIdx + 1) % photos.length; updateLb(); });
+document.addEventListener('keydown', e => {
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') { currentIdx = (currentIdx - 1 + photos.length) % photos.length; updateLb(); }
+  if (e.key === 'ArrowRight') { currentIdx = (currentIdx + 1) % photos.length; updateLb(); }
+});
+
+function closeLb() {
+  lb.classList.remove('open');
+  document.body.style.overflow = '';
+}
+</script>
+</body>
+</html>

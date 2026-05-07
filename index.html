@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viki's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #F7F2EB;
+      --cream-dark: #EDE5D8;
+      --rust: #B5432A;
+      --rust-light: #D4553A;
+      --brown: #3A2315;
+      --brown-mid: #6B3F25;
+      --gold: #C9933A;
+      --gold-light: #E8B862;
+      --text: #2E1A0E;
+      --text-muted: #7A5C45;
+      --card-bg: #FDFAF6;
+      --border: #DDD3C4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Lora', Georgia, serif;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px 80px;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 30%, rgba(201,147,58,0.12) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(181,67,42,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 80% 70%, rgba(58,35,21,0.06) 0%, transparent 60%);
+    }
+
+    /* Decorative ruled lines */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, transparent, var(--rust) 20%, var(--gold) 50%, var(--rust) 80%, transparent);
+    }
+
+    .hero-tagline {
+      font-family: 'Karla', sans-serif;
+      font-weight: 300;
+      font-size: 0.8rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(4rem, 12vw, 8rem);
+      font-weight: 700;
+      line-height: 0.9;
+      color: var(--brown);
+      letter-spacing: -0.02em;
+      position: relative;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.4s forwards;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--rust);
+    }
+
+    .hero-divider {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      margin: 28px auto;
+      position: relative;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+    }
+
+    .hero-divider::before {
+      content: '✦';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--gold);
+      font-size: 10px;
+      background: var(--cream);
+      padding: 0 8px;
+    }
+
+    .hero-subtitle {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+      color: var(--brown-mid);
+      max-width: 560px;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.7s forwards;
+    }
+
+    .hero-years {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 28px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.9s forwards;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      font-family: 'Karla', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeIn 1s ease 1.4s forwards;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ── NAV ── */
+    .site-nav {
+      background: var(--brown);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 2px solid var(--rust);
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      color: var(--cream);
+      font-style: italic;
+    }
+
+    .nav-logo span {
+      color: var(--gold-light);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream-dark);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--gold-light); }
+
+    /* ── RECIPES SECTION ── */
+    .recipes-section {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 72px 24px 80px;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 52px;
+    }
+
+    .section-label {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--brown);
+      font-weight: 600;
+    }
+
+    /* ── FILTER TABS ── */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 52px;
+    }
+
+    .filter-btn {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      font-weight: 500;
+      padding: 8px 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--rust);
+      color: var(--rust);
+    }
+
+    .filter-btn.active {
+      background: var(--rust);
+      border-color: var(--rust);
+      color: white;
+    }
+
+    /* ── RECIPE GRID ── */
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
+    .recipe-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      position: relative;
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(58,35,21,0.15);
+    }
+
+    .recipe-card:hover .card-overlay {
+      opacity: 1;
+    }
+
+    .card-img-wrap {
+      position: relative;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      background: var(--cream-dark);
+    }
+
+    .card-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      transition: transform 0.4s ease;
+    }
+
+    .recipe-card:hover .card-img-wrap img {
+      transform: scale(1.04);
+    }
+
+    .card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(58,35,21,0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .card-overlay-text {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: white;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 8px 18px;
+      border-radius: 2px;
+    }
+
+    .card-body {
+      padding: 16px 18px 20px;
+      border-top: 2px solid var(--cream-dark);
+    }
+
+    .card-category {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--brown);
+      line-height: 1.3;
+    }
+
+    .recipe-card.hidden { display: none; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(22,12,5,0.92);
+      padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox-inner {
+      position: relative;
+      max-width: 860px;
+      width: 100%;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lightbox-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-style: italic;
+      color: var(--cream);
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .lightbox-img-wrap {
+      width: 100%;
+      overflow-y: auto;
+      max-height: 78vh;
+      border: 3px solid var(--gold);
+      border-radius: 2px;
+    }
+
+    .lightbox-img-wrap img {
+      width: 100%;
+      display: block;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      width: 36px;
+      height: 36px;
+      background: var(--rust);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.2s;
+    }
+
+    .lightbox-close:hover { background: var(--rust-light); }
+
+    .lightbox-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .lightbox-nav button {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 8px 20px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: var(--cream);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .lightbox-nav button:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--gold-light);
+      color: var(--gold-light);
+    }
+
+    /* ── ABOUT SECTION ── */
+    .about-section {
+      background: var(--brown);
+      color: var(--cream);
+      padding: 80px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .about-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .about-label {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 20px;
+    }
+
+    .about-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-style: italic;
+      margin-bottom: 28px;
+      line-height: 1.2;
+    }
+
+    .about-text {
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: #C8B8A8;
+    }
+
+    .about-text + .about-text { margin-top: 18px; }
+
+    .about-divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold);
+      margin: 36px auto;
+    }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: #1E0F07;
+      color: #7A5C45;
+      text-align: center;
+      padding: 36px 24px;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--cream-dark);
+      margin-bottom: 12px;
+    }
+
+    .footer-text {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-email {
+      margin-top: 8px;
+      font-size: 0.78rem;
+    }
+
+    .footer-email a {
+      color: var(--gold-light);
+      text-decoration: none;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(1.2); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .recipe-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <p class="hero-tagline">A family treasure &nbsp;·&nbsp; Est. 2022</p>
+  <h1 class="hero-title"><em>Viki's</em><br>Kitchen</h1>
+  <div class="hero-divider"></div>
+  <p class="hero-subtitle">A collection of beloved recipes, written by hand and kept with love — a taste of home, preserved for family forever.</p>
+  <p class="hero-years">49 Recipes &nbsp;·&nbsp; A Lifetime of Cooking</p>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Browse</span>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <div class="nav-logo"><em>Viki's</em> <span>Kitchen</span></div>
+    <ul class="nav-links">
+      <li><a href="#recipes">Recipes</a></li>
+      <li><a href="#about">About Viki</a></li>
+      <li><a href="mailto:recipes@vikiskitchen.com">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- RECIPES -->
+<section class="recipes-section" id="recipes">
+  <div class="section-header">
+    <p class="section-label">The Collection</p>
+    <h2 class="section-title">All Recipes</h2>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" data-cat="all">All</button>
+    <button class="filter-btn" data-cat="Main Dishes">Main Dishes</button>
+    <button class="filter-btn" data-cat="Soups &amp; Stews">Soups &amp; Stews</button>
+    <button class="filter-btn" data-cat="Salads">Salads</button>
+    <button class="filter-btn" data-cat="Appetizers &amp; Bread">Appetizers &amp; Bread</button>
+    <button class="filter-btn" data-cat="Desserts &amp; Baking">Desserts &amp; Baking</button>
+    <button class="filter-btn" data-cat="Drinks &amp; Seasonings">Drinks &amp; Seasonings</button>
+  </div>
+
+  <div class="recipe-grid" id="recipeGrid"></div>
+</section>
+
+<!-- ABOUT -->
+<section class="about-section" id="about">
+  <div class="about-inner">
+    <p class="about-label">In Loving Memory</p>
+    <h2 class="about-title">About Viki</h2>
+    <div class="about-divider"></div>
+    <p class="about-text">Viki had a gift for making any kitchen feel like home. These recipes — written in her own hand on index cards and notepads — represent a lifetime of cooking for the people she loved.</p>
+    <p class="about-text">From weeknight casseroles to holiday cookies, each dish carries a memory. This collection was made so that her recipes, and the warmth behind them, will never be forgotten.</p>
+    <div class="about-divider"></div>
+    <p class="about-text" style="font-style:italic; color: #A89080;">Have a recipe to add, or a memory to share?<br>We'd love to hear from you.</p>
+    <p style="margin-top:16px;">
+      <a href="mailto:recipes@vikiskitchen.com" style="font-family:'Karla',sans-serif; font-size:0.8rem; letter-spacing:0.2em; text-transform:uppercase; color:var(--gold-light); text-decoration:none; border-bottom:1px solid var(--gold);">
+        recipes@vikiskitchen.com
+      </a>
+    </p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-logo">Viki's Kitchen</div>
+  <p class="footer-text">A family recipe archive, hosted with love.</p>
+  <p class="footer-email"><a href="mailto:recipes@vikiskitchen.com">recipes@vikiskitchen.com</a></p>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Close">✕</button>
+    <div class="lightbox-title" id="lightboxTitle"></div>
+    <div class="lightbox-img-wrap">
+      <img id="lightboxImg" src="" alt="">
+    </div>
+    <div class="lightbox-nav">
+      <button id="lightboxPrev">← Previous</button>
+      <button id="lightboxNext">Next →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const recipes = [
+  { title: "Korean Noodle Salad", img: "images/korean-noodle-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646084464291-LNV4SP0FMCET0B975LEO/Korean+Noodle+Salad.png?format=original", category: "Salads" },
+  { title: "Orzo Salad with Corn, Green Beans, and Tomatoes", img: "images/orzo-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1645745874463-OI4UJKXB8YQEEBKG7UCO/Orzo+Salad+with+Corn%2C+Green+Beans%2C+_+Tomatoes.png?format=original", category: "Salads" },
+  { title: "Gilroy Garlic Bread", img: "images/gilroy-garlic-bread.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089396253-S5UTZO4NW93NP4199JQ9/Gilroy+Garlic+Bread+Part+1.png?format=original", category: "Appetizers & Bread" },
+  { title: "Hot Asparagus Canapes", img: "images/hot-asparagus-canapes.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089856521-ENY2F4P3DWLIICH6PWAD/Hot+Asparagus+Canapes.png?format=original", category: "Appetizers & Bread" },
+  { title: "Mom's Chinese Chicken Salad", img: "images/moms-chinese-chicken-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646089967660-QT5L4E9FJT83I32AU305/Mom%27s+Chinese+Chicken+Salad.png?format=original", category: "Salads" },
+  { title: "Parmesan Bubble Loaf", img: "images/parmesan-bubble-loaf.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090068441-AX59NO0G2QKK9I4AFZTD/Parmesan+Bubble+Loaf.png?format=original", category: "Appetizers & Bread" },
+  { title: "Taco Junk", img: "images/taco-junk.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090132084-CWVU4UN1C7SX4A3ZIE8L/Taco+Junk.png?format=original", category: "Main Dishes" },
+  { title: "Pasta Chips", img: "images/pasta-chips.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646545656144-0NH615OTXJILM6IMW416/Pasta+Chips.png?format=original", category: "Appetizers & Bread" },
+  { title: "Crimson Apple Glogg", img: "images/crimson-apple-glogg.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646545746625-JY3X0A8VQ4OKOCU5SJ34/Crimson+Apple+Glogg.png?format=original", category: "Drinks & Seasonings" },
+  { title: "Sub Vet Chicken Salad", img: "images/sub-vet-chicken-salad.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1645746278054-VHDLQMNBD1ACC0JU8533/Sub+Vet+Chicken+Salad.png?format=original", category: "Salads" },
+  { title: "String Bean Casserole", img: "images/string-bean-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090818044-5WK98QABXZ755UOHYQR3/String+Bean+Casserole.png?format=original", category: "Main Dishes" },
+  { title: "General Tso's Chicken", img: "images/general-tsos-chicken.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646090939797-5LDKOY71I7TNUQ2IJKO5/General+Tso_s+Chicken+%28pt+1%29.png?format=original", category: "Main Dishes" },
+  { title: "Impossible Breakfast Pie", img: "images/impossible-breakfast-pie.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091091874-FWCL8ASXL5E3CKEUA907/Impossible+Breakfast+Pie.png?format=original", category: "Main Dishes" },
+  { title: "Homecoming Soup", img: "images/homecoming-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091186767-98A61OLSA7XC23YQ6KW1/Homecoming+Soup.png?format=original", category: "Soups & Stews" },
+  { title: "Hashbrown Casserole", img: "images/hashbrown-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091273986-QZ0QF8RIC8KYPXRINILO/Hash+Brown+Casserole.png?format=original", category: "Main Dishes" },
+  { title: "French Onion Meatloaf", img: "images/french-onion-meatloaf.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091373684-F5EVKU5O7EHFYEHK563T/French+Onion+Meat+Loaf.png?format=original", category: "Main Dishes" },
+  { title: "Viva La Chicken Casserole", img: "images/viva-la-chicken-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091446073-TX2F0XMHL6YQURGGI0F1/Viva+la+Chicken+Casserole.png?format=original", category: "Main Dishes" },
+  { title: "Tuna Tetrazzini", img: "images/tuna-tetrazzini.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091552888-4P87B9OBC5F7NKI8SP4W/Tuna+Tetrazzini+%28pt+1%29.png?format=original", category: "Main Dishes" },
+  { title: "Macaroni & Cheese", img: "images/macaroni-cheese.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091696166-S7GB7XMO941UHGLLBD6D/Macaroni+_+Cheese.png?format=original", category: "Main Dishes" },
+  { title: "Chicken Enchilada Casserole", img: "images/chicken-enchilada-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091820553-HCUUIE2WZ0KWPVQ76T9I/Chicken+Enchilada+Casserole.png?format=original", category: "Main Dishes" },
+  { title: "Beef & Corn Casserole", img: "images/beef-corn-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091885874-G76PB3DU853M2BY30BZP/Beef+and+Corn+Casserole.png?format=original", category: "Main Dishes" },
+  { title: "Turkey White Bean Pumpkin Chili", img: "images/turkey-white-bean-pumpkin-chili.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646091972959-W2T38AW5Q1SUUP6K1L0A/Turkey+White+Bean+Pumpkin+Chili.png?format=original", category: "Soups & Stews" },
+  { title: "Pork Tenderloin", img: "images/pork-tenderloin.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092069804-WCWWT37XF86KJVISEAS0/Pork+Tenderloin.png?format=original", category: "Main Dishes" },
+  { title: "Mom's Spaghetti Sauce", img: "images/moms-spaghetti-sauce.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092139324-HOKHUPHLPCJS5I65BL83/Mom%27s+Spaghetti+Sauce.png?format=original", category: "Main Dishes" },
+  { title: "Garlic Parmesan Salmon", img: "images/garlic-parmesan-salmon.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092320011-8I0D2EA63X3XI88L2H42/Garlic+Salmon.jpg?format=original", category: "Main Dishes" },
+  { title: "Fish Florentine", img: "images/fish-florentine.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092424033-6PBRK700Z1A7N5034PW1/Fish+Florentine.jpg?format=original", category: "Main Dishes" },
+  { title: "Tortellini Casserole", img: "images/tortellini-casserole.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092513053-54U1546TF1CKYVQN589X/Tortellini.jpg?format=original", category: "Main Dishes" },
+  { title: "Chili Rellenos Casserole", img: "images/chili-rellenos-casserole.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092592840-84G2EC5YV4Z8QY5FRFRH/Chili+Rellenos+Cassarole.jpg?format=original", category: "Soups & Stews" },
+  { title: "Slow Cooker Vegetable Soup", img: "images/slow-cooker-vegetable-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092704997-IQUIY7AU2R5IBTO8OR5O/Slow+Cooker+Vegetable+Soup.png?format=original", category: "Soups & Stews" },
+  { title: "Chicken Soup", img: "images/chicken-soup.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092778840-O7KXCLG7DCXHAPSLAFPG/Chicken+Soup+Part+1.png?format=original", category: "Soups & Stews" },
+  { title: "Quick & Easy Chicken Cacciatore", img: "images/chicken-cacciatore.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646092923802-BX337LM2RTJ393N7RNZJ/Quick+%26+Easy+Chicken+Cacciatore+Part+1.png?format=original", category: "Main Dishes" },
+  { title: "Peloponnesian Pot Roast", img: "images/peloponnesian-pot-roast.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093056449-NDEGHSLITW7W13GARY91/Peloponesian+Pot+Roast+Part+1.png?format=original", category: "Main Dishes" },
+  { title: "Minestrone", img: "images/minestrone.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093219669-32AYLE1215TGHZNSGCAT/Minestrone+Part+1.png?format=original", category: "Soups & Stews" },
+  { title: "Quick & Easy Chicken Casserole", img: "images/chicken-casserole.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093299141-GGBIQ9QGWBH1SCVFAPLN/Quick+%26+Easy+Chicken+Cassarole+Part+1.png?format=original", category: "Main Dishes" },
+  { title: "Chicken & Dumplings", img: "images/chicken-dumplings.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646545903752-JREBKY21JPRFLK1FKEO6/Chicken+%26+Dumplings.png?format=original", category: "Main Dishes" },
+  { title: "Shepherds Pie", img: "images/shepherds-pie.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546031884-4GVE70HNASXDKOUZNE5Q/Shepherd%27s+Pie.png?format=original", category: "Main Dishes" },
+  { title: "Taco/Shake & Bake Seasonings", img: "images/taco-seasonings.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546173062-X9M46999WCLIZ5YOUZ58/Taco-Seasoning.png?format=original", category: "Drinks & Seasonings" },
+  { title: "Banana Split Dessert", img: "images/banana-split-dessert.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093544413-9OU0106Y7OMDYSVBOCB8/Banana+Split+Dessert++%28pt+1%29.png?format=original", category: "Desserts & Baking" },
+  { title: "Lemon Poppyseed Scones", img: "images/lemon-poppyseed-scones.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093805665-8ITF4JXYCMU8M46P9B23/Lemon+Poppyseed+Scones.png?format=original", category: "Desserts & Baking" },
+  { title: "Apple Dump Cake", img: "images/apple-dump-cake.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093685508-1QB733XZ84CGD5HRADCW/Apple+Dump+Cake.png?format=original", category: "Desserts & Baking" },
+  { title: "Pumpkin Spice Granola", img: "images/pumpkin-spice-granola.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093930610-E18138O5PYZB2EVTNTQP/Pumpkin+Spice+Granola.png?format=original", category: "Desserts & Baking" },
+  { title: "Blonde Brownies", img: "images/blonde-brownies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646093868989-D8TVDUY1QWLVYB5A6LZT/Blonde+Brownies.png?format=original", category: "Desserts & Baking" },
+  { title: "Lemon Delight", img: "images/lemon-delight.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094012079-F4A6V338ZHI1QN5EQ9P5/Lemon+Delight.png?format=original", category: "Desserts & Baking" },
+  { title: "Arabian Night Cookies", img: "images/arabian-night-cookies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646099277287-RK6LAHU7GDRNM62T3RFI/Arabian+Nights+Cookies.png?format=original", category: "Desserts & Baking" },
+  { title: "\u201cThe\u201d Brownies", img: "images/the-brownies.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646094163130-0C3124WNF3ZQ71QSHTIZ/%E2%80%9CThe%E2%80%9D+Brownies+Part+1.png?format=original", category: "Desserts & Baking" },
+  { title: "Great Scots", img: "images/great-scots.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546312671-3K4E91V2FWG0QFRWG4WW/Great+Scots.png?format=original", category: "Desserts & Baking" },
+  { title: "Spicy Candied Walnuts", img: "images/spicy-candied-walnuts.png", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646546375351-VUEKX1KM5FHQ3V5VI0QR/Spicy+Candied+Walnuts.png?format=original", category: "Desserts & Baking" },
+  { title: "Rocky Road", img: "images/rocky-road.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646675908938-SJXA79HSZI310VAC8HGD/Rocky+Road+Part+1.jpg?format=original", category: "Desserts & Baking" },
+  { title: "Almond Cake with Fresh Berries", img: "images/almond-cake-fresh-berries.jpg", imgUrl: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/1646676045385-7P83GVQTHAZM0P4XVFBB/Almond+Cake+with+Fresh+Berries+Part+1.jpg?format=original", category: "Desserts & Baking" }
+];
+
+// Build recipe cards
+const grid = document.getElementById('recipeGrid');
+let currentIndex = 0;
+let visibleRecipes = [...recipes];
+
+function getImgSrc(r) {
+  // Try local path first; fall back to Squarespace CDN
+  return r.imgUrl;
+}
+
+function buildCards(list) {
+  grid.innerHTML = '';
+  list.forEach((r, i) => {
+    const card = document.createElement('div');
+    card.className = 'recipe-card';
+    card.dataset.index = i;
+    card.innerHTML = `
+      <div class="card-img-wrap">
+        <img src="${getImgSrc(r)}" alt="${r.title}" loading="lazy">
+        <div class="card-overlay"><span class="card-overlay-text">View Recipe</span></div>
+      </div>
+      <div class="card-body">
+        <div class="card-category">${r.category}</div>
+        <div class="card-title">${r.title}</div>
+      </div>`;
+    card.addEventListener('click', () => openLightbox(i, list));
+    grid.appendChild(card);
+  });
+}
+
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    visibleRecipes = cat === 'all' ? [...recipes] : recipes.filter(r => r.category === cat);
+    buildCards(visibleRecipes);
+  });
+});
+
+// Lightbox
+const lightbox = document.getElementById('lightbox');
+const lbImg = document.getElementById('lightboxImg');
+const lbTitle = document.getElementById('lightboxTitle');
+
+function openLightbox(idx, list) {
+  currentIndex = idx;
+  visibleRecipes = list;
+  updateLightbox();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function updateLightbox() {
+  const r = visibleRecipes[currentIndex];
+  lbImg.src = getImgSrc(r);
+  lbImg.alt = r.title;
+  lbTitle.textContent = r.title;
+}
+
+document.getElementById('lightboxClose').addEventListener('click', () => {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+});
+
+document.getElementById('lightboxPrev').addEventListener('click', () => {
+  currentIndex = (currentIndex - 1 + visibleRecipes.length) % visibleRecipes.length;
+  updateLightbox();
+});
+
+document.getElementById('lightboxNext').addEventListener('click', () => {
+  currentIndex = (currentIndex + 1) % visibleRecipes.length;
+  updateLightbox();
+});
+
+lightbox.addEventListener('click', e => {
+  if (e.target === lightbox) {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+});
+
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  if (e.key === 'Escape') { lightbox.classList.remove('open'); document.body.style.overflow = ''; }
+  if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + visibleRecipes.length) % visibleRecipes.length; updateLightbox(); }
+  if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % visibleRecipes.length; updateLightbox(); }
+});
+
+// Init
+buildCards(recipes);
+</script>
+</body>
+</html>
