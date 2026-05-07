@@ -449,26 +449,43 @@ const photos = [
   { url: "https://images.squarespace-cdn.com/content/v1/62180df6d27fe936f09f279b/49eb44bb-7908-4861-9f51-60587feab814/IMG_8599.JPG?format=2500w", local: "gallery/img_8599.jpg" }
 ];
 
-function getSrc(p) {
-  return p.local;  // images are in the repo under gallery/
+function getThumb(p) {
+  return p.url.replace('2500w', '500w'); // small thumbnail for grid
+}
+function getFullSrc(p) {
+  return p.local; // full quality for lightbox
 }
 
 const grid = document.getElementById('masonryGrid');
 let currentIdx = 0;
 
-// Build grid
+// IntersectionObserver for true lazy loading
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target.querySelector('img[data-src]');
+      if (img) { img.src = img.dataset.src; img.removeAttribute('data-src'); }
+      observer.unobserve(entry.target);
+    }
+  });
+}, { rootMargin: '200px' });
+
 photos.forEach((p, i) => {
   const div = document.createElement('div');
   div.className = 'masonry-item';
   const img = document.createElement('img');
-  img.src = getSrc(p);
+  if (i < 12) {
+    img.src = getThumb(p); // load first 12 immediately
+  } else {
+    img.dataset.src = getThumb(p);
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+  }
   img.alt = `Photo ${i+1}`;
-  img.loading = 'lazy';
-  img.onerror = function() { this.onerror = null; this.src = p.url; };
   div.appendChild(img);
   div.insertAdjacentHTML('beforeend', `<div class="hover-icon"><span>View</span></div>`);
   div.addEventListener('click', () => openLb(i));
   grid.appendChild(div);
+  if (i >= 12) observer.observe(div);
 });
 
 // Lightbox
@@ -484,7 +501,7 @@ function openLb(idx) {
 }
 
 function updateLb() {
-  lbImg.src = getSrc(photos[currentIdx]);
+  lbImg.src = getFullSrc(photos[currentIdx]);
   lbCounter.textContent = (currentIdx + 1) + ' / ' + photos.length;
 }
 
