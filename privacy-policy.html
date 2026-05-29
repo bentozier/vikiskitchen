@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Viki's Kitchen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&family=Karla:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #F7F2EB;
+      --cream-dark: #EDE5D8;
+      --rust: #B5432A;
+      --brown: #3A2315;
+      --gold: #C9933A;
+      --gold-light: #E8B862;
+      --text: #2E1A0E;
+      --text-muted: #7A5C45;
+      --border: #DDD3C4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--cream);
+      color: var(--text);
+      font-family: 'Lora', Georgia, serif;
+    }
+
+    /* ── NAV ── */
+    .site-nav {
+      background: var(--brown);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0 24px;
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 54px;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--gold-light);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--cream-dark);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--gold-light); }
+
+    @media (max-width: 640px) { .nav-links { display: none; } }
+
+    /* ── PAGE CONTENT ── */
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 24px 80px;
+    }
+
+    .page-eyebrow {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 14px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 10px;
+    }
+
+    .page-updated {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
+    }
+
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 12px;
+      margin-top: 36px;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    ul {
+      margin: 0 0 16px 1.4em;
+    }
+
+    ul li {
+      font-size: 1rem;
+      line-height: 1.8;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    a {
+      color: var(--rust);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(181,67,42,0.3);
+      transition: border-color 0.2s;
+    }
+
+    a:hover { border-color: var(--rust); }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: #1E0F07;
+      color: #7A5C45;
+      text-align: center;
+      padding: 36px 24px;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--cream-dark);
+      margin-bottom: 12px;
+    }
+
+    .footer-text {
+      font-family: 'Karla', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
+
+    .footer-email {
+      margin-top: 8px;
+      font-size: 0.78rem;
+    }
+
+    .footer-email a {
+      color: var(--gold-light);
+      text-decoration: none;
+      border: none;
+    }
+
+    .footer-links {
+      margin-top: 14px;
+      font-family: 'Karla', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+    }
+
+    .footer-links a {
+      color: #5A4030;
+      text-decoration: none;
+      border: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: #7A5C45; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <div class="nav-logo"><a href="/" style="color:inherit;text-decoration:none;border:none;"><em>Viki's</em> Kitchen</a></div>
+    <ul class="nav-links">
+      <li><a href="/#recipes">Recipes</a></li>
+      <li><a href="/gallery.html">Photos</a></li>
+      <li><a href="/#about">About Viki</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<div class="page-wrap">
+  <p class="page-eyebrow">Legal</p>
+  <h1 class="page-title">Privacy Policy</h1>
+  <p class="page-updated">Last updated: May 2026</p>
+
+  <p>Viki's Kitchen is a personal, non-commercial memorial website dedicated to preserving the recipes of Viki Tozier. We take your privacy seriously and want to be straightforward about how this site works.</p>
+
+  <hr class="divider">
+
+  <h2>Information We Collect</h2>
+  <p>We do not collect, store, or sell any personal information. This site has no user accounts, no sign-up forms, no comment sections, and no analytics tracking of our own.</p>
+
+  <h2>Third-Party Services</h2>
+  <p>This site uses a small number of third-party services that may collect limited technical information as part of their normal operation:</p>
+  <ul>
+    <li><strong>GitHub Pages</strong> — This site is hosted on GitHub Pages. GitHub may collect standard server log data (such as IP addresses and browser type) as described in the <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub Privacy Statement</a>.</li>
+    <li><strong>Google Fonts</strong> — We use Google Fonts to load typefaces. When your browser loads this page, it makes a request to Google's servers, which may log your IP address. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a> for details.</li>
+  </ul>
+
+  <h2>Cookies</h2>
+  <p>We do not set any cookies. GitHub Pages or Google Fonts may set cookies as part of their own services — please refer to their respective privacy policies linked above.</p>
+
+  <h2>Email Contact</h2>
+  <p>If you choose to email us at <a href="mailto:recipes@vikiskitchen.com">recipes@vikiskitchen.com</a>, the content of your message and your email address will be used only to respond to you. We will not share your information with anyone.</p>
+
+  <h2>Children's Privacy</h2>
+  <p>This site is a family recipe archive intended for general audiences. We do not knowingly collect any information from children.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>If we ever make material changes to this policy, we will update the "Last updated" date at the top of this page.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy? Reach us at <a href="mailto:recipes@vikiskitchen.com">recipes@vikiskitchen.com</a>.</p>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-logo">Viki's Kitchen</div>
+  <p class="footer-text">A family recipe archive, hosted with love.</p>
+  <p class="footer-email"><a href="mailto:recipes@vikiskitchen.com">recipes@vikiskitchen.com</a></p>
+  <p class="footer-links"><a href="/privacy-policy.html">Privacy Policy</a></p>
+</footer>
+
+</body>
+</html>
